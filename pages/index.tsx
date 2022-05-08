@@ -47,7 +47,9 @@ const Home: NextPage = () => {
       </Head>
       <div className="max-w-7xl mx-auto py-16">
         <main>
-          <h1 className="text-4xl font-bold mb-6 text-center">SuperCompare</h1>
+          <h1 className="text-4xl font-bold mb-6 text-center">
+            SuperCompare v0.1
+          </h1>
           <div className="flex gap-x-6 gap-y-6">
             <input
               className="bg-white p-2 rounded"
