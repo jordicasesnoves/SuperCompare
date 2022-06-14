@@ -10,6 +10,8 @@ type Product = {
   description?: string
   imageURL: string
   supermarket: 'mercadona' | 'consum'
+  size?: number
+  sizeFormat?: 'kg' | 'l'
 }
 
 type Data = {
@@ -46,19 +48,31 @@ export default async function handler(
     }
   )
 
+  console.log(consumData.products[0])
+
   // id, name, price, brand, image, supermarket
   const consumParsedData: Product[] = consumData.products.map(
-    (product: any) => ({
-      id: product.id,
-      name: product.productData.name,
-      brand: product.productData.brand.name,
-      price: parseFloat(
-        product.priceData.prices[0].value.centAmount.toFixed(2)
-      ),
-      description: product.productData.description,
-      imageURL: product.productData.imageURL,
-      supermarket: 'consum'
-    })
+    (product: any) => {
+      const name = product.productData.name
+      const desc = product.productData.description
+      const sizeAndFormat = desc.replace(name, '')
+
+      // find 'L' 'ml' 'kg' 'g'
+      const sizeFormat = sizeAndFormat.match(/[lkgmg]/g)
+      console.log(sizeFormat)
+      return {
+        id: product.id,
+        name: product.productData.name,
+        brand: product.productData.brand.name,
+        price: parseFloat(
+          product.priceData.prices[0].value.centAmount.toFixed(2)
+        ),
+        /*         size: product.productData.description.. */
+        description: product.productData.description,
+        imageURL: product.productData.imageURL,
+        supermarket: 'consum'
+      }
+    }
   )
 
   const mercadonaParsedData: Product[] = mercadonaData.hits.map(
@@ -67,14 +81,18 @@ export default async function handler(
       name: product.display_name,
       brand: product.brand,
       price: parseFloat(product.price_instructions.unit_price),
+      size: product.price_instructions.unit_size,
+      sizeFormat: product.price_instructions.size_format,
       imageURL: product.thumbnail,
       supermarket: 'mercadona'
     })
   )
+
   const results = {
     consum: consumParsedData.length,
     mercadona: mercadonaData.nbHits
   }
+
   const resultsCount = consumParsedData.length + mercadonaData.nbHits
   const products = [...consumParsedData, ...mercadonaParsedData]
   res
